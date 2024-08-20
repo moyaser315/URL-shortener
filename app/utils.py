@@ -1,5 +1,5 @@
 import hashlib
-
+from urllib.parse import urlparse
 base62_char = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
 
 
@@ -44,7 +44,13 @@ def create_new_url(url: str):
     return new_url
 
 
+def valid_url(url):
+    check_url = urlparse(url)
+    return all([check_url.scheme,check_url.netloc])
 # x,y = url_short('https://stackoverflow.com/questions/55858527/how-to-set-the-default-value-of-a-column-in-sqlalchemy-to-the-value-of-a-column')
 # _ = encode_hash(x)
 # print(x)
 # print(decode(_,y))
+
+# _ = valid_url('https://stackoverflow.com/questions/55858527/how-to-set-the-default-value-of-a-column-in-sqlalchemy-to-the-value-of-a-column')
+# print(_)
