@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Boolean, ForeignKey
+from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql.expression import text
 from sqlalchemy.sql.sqltypes import TIMESTAMP
@@ -14,4 +14,7 @@ class Urls(Base):
     craeted_at = Column(
         TIMESTAMP(timezone=True), nullable=False, default=text("datetime()")
     )
-    clicks = Column(Integer, nullable=False, server_default=text("0"))
+    clicks_count = Column(Integer, nullable=False, server_default=text("0"))
+
+    clicks = relationship("Clicks", back_populates="url", cascade="all, delete")
+

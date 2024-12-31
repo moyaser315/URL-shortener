@@ -1,5 +1,7 @@
 import hashlib
 from urllib.parse import urlparse
+import re
+
 base62_char = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
 
 
@@ -37,7 +39,6 @@ def decode(encoded_url: str, byte_len: int) -> str:
     return ans.to_bytes(length=byte_len, byteorder="big")
 
 
-# TODO: the unhashing for retriving
 def create_new_url(url: str):
     hashed, length = url_short(url)
     new_url = encode_hash(hashed)
@@ -46,11 +47,39 @@ def create_new_url(url: str):
 
 def valid_url(url):
     check_url = urlparse(url)
-    return all([check_url.scheme,check_url.netloc])
-# x,y = url_short('https://stackoverflow.com/questions/55858527/how-to-set-the-default-value-of-a-column-in-sqlalchemy-to-the-value-of-a-column')
-# _ = encode_hash(x)
-# print(x)
-# print(decode(_,y))
+    return all([check_url.scheme, check_url.netloc])
 
-# _ = valid_url('https://stackoverflow.com/questions/55858527/how-to-set-the-default-value-of-a-column-in-sqlalchemy-to-the-value-of-a-column')
-# print(_)
+
+def parse_user_agent(user_agent):
+    os_patterns = {
+        "Windows": r"Windows NT [0-9.]+",
+        "MacOS": r"Mac OS X [0-9_]+",
+        "Android": r"Android [0-9.]+",
+        "iOS": r"iPhone OS [0-9_]+|iPad; CPU OS [0-9_]+",
+    }
+    browser_patterns = {
+        "Chrome": r"Chrome/[0-9.]+",
+        "Safari": r"Version/[0-9.]+ Safari",
+        "Firefox": r"Firefox/[0-9.]+",
+    }
+    os = next((os for os, pattern in os_patterns.items() if re.search(pattern, user_agent)), "Unknown")
+    browser = next((browser for browser, pattern in browser_patterns.items() if re.search(pattern, user_agent)), "Unknown")
+
+    device_type = (
+        "Mobile" if "Mobile" in user_agent else "Tablet" if "Tablet" in user_agent else "Desktop"
+    )
+
+    return {'os':os, 'browser':browser, 'device':device_type}
+
+
+if __name__ == '__main__':
+    x,y = url_short('https://stackoverflow.com/questions/55858527/how-to-set-the-default-value-of-a-column-in-sqlalchemy-to-the-value-of-a-column')
+    _ = encode_hash(x)
+    print(x)
+    print(decode(_,y))
+    _ = valid_url('https://stackoverflow.com/questions/55858527/how-to-set-the-default-value-of-a-column-in-sqlalchemy-to-the-value-of-a-column')
+    print(_)
+    user_agent_string = "Mozilla/5.0 (Linux; Android 11; SM-G973F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.120 Mobile Safari/537.36"
+    os, browser, device_type = parse_user_agent(user_agent_string)
+    print(f"OS: {os}, Browser: {browser}, Device Type: {device_type}")
+
