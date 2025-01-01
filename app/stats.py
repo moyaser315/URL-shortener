@@ -1,0 +1,132 @@
+import pandas as pd
+from typing import List, Dict, Any
+import matplotlib.pyplot as plt
+import calendar
+import os
+
+def pie_plot(stat: Dict[str, Any], name: str, output_dir="figures"):
+    os.makedirs(output_dir, exist_ok=True)
+    labels, sizes = [], []
+    for i, j in stat.items():
+        labels.append(i)
+        sizes.append(j)
+    fig, ax = plt.subplots()
+    ax.pie(sizes, labels=labels, autopct='%1.1f%%')
+    plt.title(f"{name} distribution")
+    file_path = os.path.join(output_dir, f"{name}_pie.png")
+    plt.savefig(file_path)
+    plt.close()
+    print(f"Saved pie chart: {file_path}")
+
+def bar_chart(stat: Dict[str, Any], name: str, output_dir="figures"):
+    os.makedirs(output_dir, exist_ok=True)
+    x, values = [], []
+    if name == 'day':
+        x = list(calendar.day_name)
+    elif name == 'month':
+        x = list(calendar.month_name)
+    else:
+        x = [i for i in range(25)]
+    for i in range(len(x)):
+        values.append(stat[x[i]] if x[i] in stat else 0)
+    plt.bar(x, values)
+    plt.title(f"{name} distribution")
+    file_path = os.path.join(output_dir, f"{name}_bar.png")
+    plt.savefig(file_path)
+    plt.close()
+    print(f"Saved bar chart: {file_path}")
+
+def analyze_url_stats(stats: List[Dict[str, Any]]) -> Dict[str, Any]:
+    df = pd.DataFrame(stats)
+    df = df.fillna(0)
+    df['timestamp'] = pd.to_datetime(df['timestamp'])
+    time_patterns = analyze_time_patterns(df)
+    return {
+        'total_visits': len(df),
+        'unique_visitors': df['client_ip'].nunique(),
+        'device_stats': df['device'].value_counts().to_dict(),
+        'os_stats': df['os'].value_counts().to_dict(),
+        'browser_stats': df['browser'].value_counts().to_dict(),
+        'time_patterns': time_patterns,
+    }
+
+def analyze_time_patterns(df: pd.DataFrame) -> Dict[str, Any]:
+    df['hour'] = df['timestamp'].dt.hour
+    df['day_of_week'] = df['timestamp'].dt.day_name()
+    df['month'] = df['timestamp'].dt.month
+    df['week'] = df['timestamp'].dt.isocalendar().week
+
+    time_patterns = {
+        'hourly_distribution': df['hour'].value_counts().sort_index().fillna(0).to_dict(),
+        'daily_distribution': df['day_of_week'].value_counts().reindex(list(calendar.day_name)).fillna(0).to_dict(),
+        'monthly_distribution': df['month'].value_counts().sort_index().fillna(0).to_dict(),
+        'peak_times': {
+            'hour': df.groupby('hour')['id'].count().idxmax(),
+            'day': df.groupby('day_of_week')['id'].count().idxmax(),
+            'month': df.groupby('month')['id'].count().idxmax()
+        },
+        'weekly_trends': df.groupby(['week', 'day_of_week'])['id'].count().to_dict()
+    }
+
+    hourly_avg = df.groupby('hour')['id'].count().mean()
+    time_patterns['busy_hours'] = df.groupby('hour')['id'].count()[
+        df.groupby('hour')['id'].count() > hourly_avg * 1.2
+    ].index.tolist()
+
+    return time_patterns
+
+if __name__ == "__main__":
+    sample_stats = [
+        {
+            "url_id": 1,
+            "os": "Android",
+            "browser": "Chrome",
+            "timestamp": "2024-12-31T20:54:31",
+            "device": "Mobile",
+            "id": 1,
+            "client_ip": "127.0.0.1"
+        },
+        {
+            "url_id": 1,
+            "os": "Android",
+            "browser": "Chrome",
+            "timestamp": "2024-12-31T19:54:34",
+            "device": "Desktop",
+            "id": 2,
+            "client_ip": "127.0.0.1"
+        },
+        {
+            "url_id": 1,
+            "os": "Android",
+            "browser": "Chrome",
+            "timestamp": "2024-12-31T15:54:35",
+            "device": "Mobile",
+            "id": 3,
+            "client_ip": "127.0.0.1"
+        },
+        {
+            "url_id": 1,
+            "os": "Android",
+            "browser": "Chrome",
+            "timestamp": "2024-12-31T07:54:37",
+            "device": "Mobile",
+            "id": 4,
+            "client_ip": "127.0.0.1"
+        },
+        {
+            "url_id": 1,
+            "os": "Android",
+            "browser": "Chrome",
+            "timestamp": "2024-12-31T19:54:38",
+            "device": "Mobile",
+            "id": 5,
+            "client_ip": "127.0.0.1"
+        }
+    ]
+    out=r"D:\projects\backend\url-shortner\figs"
+    analytics = analyze_url_stats(sample_stats)
+    pie_plot(analytics['device_stats'], 'device_dist',out)
+    pie_plot(analytics['os_stats'], 'os_dist',out)
+    pie_plot(analytics['browser_stats'], 'browser_dist',out)
+    bar_chart(analytics['time_patterns']['hourly_distribution'], 'hour',out)
+    print(analytics)

@@ -3,7 +3,7 @@ from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 
 from ..schemes import scheme
-from .. import utils
+from .. import utils,stats
 from ..models import urlmodel,clicks
 from ..models.database import get_db
 

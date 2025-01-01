@@ -1,12 +1,14 @@
 # URL-shortener
 
-### To-Do list 
+### To-Do list  
+
 - [x] shorten URLs
 - [x] Clicks
 - [x] frontend
 - [x] verify the input is url
 - [ ] user db
-- [ ] analysis
+- [x] analysis
+- [ ] integrate stats to front end
 
 
 ### How to start it 
