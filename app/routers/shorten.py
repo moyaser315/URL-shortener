@@ -69,13 +69,14 @@ async def get_url_stats(orig_url: scheme.Url, db: Session = Depends(get_db)):
         .filter(urlmodel.Urls.original_url == orig_url.original_url)
         .first()
     )
-    stats = db.query(clicks.Clicks).filter(url.id==clicks.Clicks.url_id).all()
-
-
     if not url:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="This URL is not registered Yet",
         )
+    
+    stat = db.query(clicks.Clicks).filter(url.id==clicks.Clicks.url_id).all()
+    s = [i.__dict__ for i in stat]
+    res = stats.analyze(s,url.id)
 
-    return {'url':url, 'stats':stats}
+    return res

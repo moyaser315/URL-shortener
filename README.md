@@ -8,7 +8,8 @@
 - [x] verify the input is url
 - [ ] user db
 - [x] analysis
-- [ ] integrate stats to front end
+- [x] integrate stats to front end
+- [ ] after logging out delete stats folder for the id
 
 
 ### How to start it 

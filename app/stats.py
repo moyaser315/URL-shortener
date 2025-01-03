@@ -17,6 +17,7 @@ def pie_plot(stat: Dict[str, Any], name: str, output_dir="figures"):
     plt.savefig(file_path)
     plt.close()
     print(f"Saved pie chart: {file_path}")
+    return file_path
 
 def bar_chart(stat: Dict[str, Any], name: str, output_dir="figures"):
     os.makedirs(output_dir, exist_ok=True)
@@ -35,6 +36,7 @@ def bar_chart(stat: Dict[str, Any], name: str, output_dir="figures"):
     plt.savefig(file_path)
     plt.close()
     print(f"Saved bar chart: {file_path}")
+    return file_path
 
 def analyze_url_stats(stats: List[Dict[str, Any]]) -> Dict[str, Any]:
     df = pd.DataFrame(stats)
@@ -74,7 +76,24 @@ def analyze_time_patterns(df: pd.DataFrame) -> Dict[str, Any]:
     ].index.tolist()
 
     return time_patterns
-
+def analyze(stats: List[Dict[str, Any]],id : str) -> Dict[str, Any]:
+    out=rf"./figs/{id}"
+    analytics = analyze_url_stats(stats)
+    device_stats = pie_plot(analytics['device_stats'], 'device_dist',out)
+    os_stats = pie_plot(analytics['os_stats'], 'os_dist',out)
+    browser_stats = pie_plot(analytics['browser_stats'], 'browser_dist',out)
+    hour_dist = bar_chart(analytics['time_patterns']['hourly_distribution'], 'hour',out)
+    day_dist = bar_chart(analytics['time_patterns']['daily_distribution'], 'day',out)
+    month_dist = bar_chart(analytics['time_patterns']['monthly_distribution'], 'month',out)
+    return {
+        'hour_chart':hour_dist ,
+        'day_chart' : day_dist,
+        'month_chart' : month_dist,
+        'device_chart' : device_stats,
+        'os_chart' : os_stats,
+        'browser_chart' : browser_stats,
+        'busy_hours' : analytics['time_patterns']['busy_hours']
+    }
 if __name__ == "__main__":
     sample_stats = [
         {
@@ -129,4 +148,6 @@ if __name__ == "__main__":
     pie_plot(analytics['os_stats'], 'os_dist',out)
     pie_plot(analytics['browser_stats'], 'browser_dist',out)
     bar_chart(analytics['time_patterns']['hourly_distribution'], 'hour',out)
+    bar_chart(analytics['time_patterns']['daily_distribution'], 'day',out)
+    bar_chart(analytics['time_patterns']['monthly_distribution'], 'month',out)
     print(analytics)
