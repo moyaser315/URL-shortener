@@ -77,6 +77,11 @@ async def get_url_stats(orig_url: scheme.Url, db: Session = Depends(get_db)):
     
     stat = db.query(clicks.Clicks).filter(url.id==clicks.Clicks.url_id).all()
     s = [i.__dict__ for i in stat]
-    res = stats.analyze(s,url.id)
+    res = stats.analyze(s, url.id)
 
-    return res
+    response = dict(res)
+    response["original_url"] = url.original_url
+    response["new_url"] = url.new_url
+    response["craeted_at"] = str(url.craeted_at) if hasattr(url, 'craeted_at') else (str(url.created_at) if hasattr(url, 'created_at') else None)
+    response["clicks"] = url.clicks_count if hasattr(url, 'clicks_count') else len(s)
+    return response
