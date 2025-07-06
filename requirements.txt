@@ -33,7 +33,7 @@ Pygments==2.18.0
 pyparsing==3.2.3
 python-dateutil==2.9.0.post0
 python-dotenv==1.0.1
-python-multipart==0.0.9
+python-multipart==0.0.18
 pytz==2025.2
 PyYAML==6.0.2
 rich==13.7.1
