@@ -64,6 +64,7 @@ uvicorn app.main:app --reload
 - [x] Click tracking
 - [x] Frontend integration
 - [x] Input validation
+- [x] Make Project asynchronous
 - [ ] User database
 - [x] Analytics & charts
 - [x] Integrate stats with frontend
