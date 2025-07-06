@@ -27,11 +27,15 @@ def bar_chart(stat: Dict[str, Any], name: str, output_dir="figures"):
     elif name == 'month':
         x = list(calendar.month_name)
     else:
-        x = [i for i in range(25)]
+        x = [i for i in range(24)]
     for i in range(len(x)):
         values.append(stat[x[i]] if x[i] in stat else 0)
-    plt.bar(x, values)
+    fig, ax = plt.subplots(figsize=(10, 5))
+    bars = ax.bar(x, values)
     plt.title(f"{name} distribution")
+    if name == 'day' or name == 'month':
+        plt.xticks(rotation=30, ha='right', fontsize=10)
+        plt.tight_layout()
     file_path = os.path.join(output_dir, f"{name}_bar.png")
     plt.savefig(file_path)
     plt.close()
